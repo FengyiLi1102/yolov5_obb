@@ -27,7 +27,7 @@ shear: 0.0
 perspective: 0.0
 flipud: 0.5
 fliplr: 0.5
-mosaic: 0.7
+mosaic: 0
 mixup: 0.1
 copy_paste: 0.0
 cls_theta: 180
