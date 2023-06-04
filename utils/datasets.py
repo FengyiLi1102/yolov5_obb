@@ -981,7 +981,7 @@ def verify_image_label(args):
                         continue
                     cls_id = cls_name_list.index(label[8])
                     l_.append(np.concatenate((cls_id, label[:8]), axis=None))
-                l = np.array(l_, dtype=np.float32)
+                l = np.array(l_, dtype=np.float64)
             nl = len(l)
             if nl:
                 assert len(label) == 10, f'Yolov5-OBB labels require 10 columns, which same as DOTA Dataset, {len(label)} columns detected'
