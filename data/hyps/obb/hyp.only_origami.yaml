@@ -1,13 +1,13 @@
 # YOLOv5 🚀 by Ultralytics, GPL-3.0 license
 
-lr0: 0.0001  # Learning rate should be small for finetune.
+lr0: 0.001  # Learning rate should be small for finetune.
 lrf: 0.2
 momentum: 0.937
 weight_decay: 0.0005
-warmup_epochs: 50.0
+warmup_epochs: 200.0
 warmup_momentum: 0.8
 warmup_bias_lr: 0.1
-box: 0.05
+box: 0.005
 cls: 0.5
 cls_pw: 1.0
 theta: 0.5
