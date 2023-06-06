@@ -92,7 +92,8 @@ def exif_transpose(image):
     return image
 
 
-def create_dataloader(path, imgsz, batch_size, stride, names, single_cls=False, hyp=None, augment=False, cache=False, pad=0.0,
+def create_dataloader(path, imgsz, batch_size, stride, names, single_cls=False, hyp=None, augment=False, cache=False,
+                      pad=0.0,
                       rect=False, rank=-1, workers=8, image_weights=False, quad=False, prefix='', shuffle=False):
     if rect and shuffle:
         LOGGER.warning('WARNING: --rect is incompatible with DataLoader shuffle, setting shuffle=False')
@@ -378,7 +379,8 @@ class LoadImagesAndLabels(Dataset):
     # YOLOv5 train_loader/val_loader, loads images and labels for training and validation
     cache_version = 0.6  # dataset labels *.cache version
 
-    def __init__(self, path, cls_names, img_size=640, batch_size=16, augment=False, hyp=None, rect=False, image_weights=False,
+    def __init__(self, path, cls_names, img_size=640, batch_size=16, augment=False, hyp=None, rect=False,
+                 image_weights=False,
                  cache_images=False, single_cls=False, stride=32, pad=0.0, prefix=''):
         """
         Returns:
@@ -442,8 +444,8 @@ class LoadImagesAndLabels(Dataset):
         # Read cache
         [cache.pop(k) for k in ('hash', 'version', 'msgs')]  # remove items
         labels, shapes, self.segments = zip(*cache.values())
-        self.labels = list(labels) # labels(list[array]): n_imgs * array(num_gt_perimg, [cls_id, poly])
-        self.shapes = np.array(shapes, dtype=np.float64) # img_ori shape
+        self.labels = list(labels)  # labels(list[array]): n_imgs * array(num_gt_perimg, [cls_id, poly])
+        self.shapes = np.array(shapes, dtype=np.float64)  # img_ori shape
         self.img_files = list(cache.keys())  # update
         self.label_files = img2label_paths(cache.keys())  # update
         n = len(shapes)  # number of images
@@ -484,12 +486,13 @@ class LoadImagesAndLabels(Dataset):
             for i in range(nb):
                 ari = ar[bi == i]
                 mini, maxi = ari.min(), ari.max()
-                if maxi < 1: # batch图像高宽比均小于1时, shape=[h/w, 1] = [h_ratio, w_ratio]
-                    shapes[i] = [maxi, 1] 
-                elif mini > 1: # batch图像高宽比均大于1时, shape=[1, w/h] = [h_ratio, w_ratio]
+                if maxi < 1:  # batch图像高宽比均小于1时, shape=[h/w, 1] = [h_ratio, w_ratio]
+                    shapes[i] = [maxi, 1]
+                elif mini > 1:  # batch图像高宽比均大于1时, shape=[1, w/h] = [h_ratio, w_ratio]
                     shapes[i] = [1, 1 / mini]
 
-            self.batch_shapes = np.ceil(np.array(shapes) * img_size / stride + pad).astype(np.int32) * stride # (nb, [h_rect, w_rect])
+            self.batch_shapes = np.ceil(np.array(shapes) * img_size / stride + pad).astype(
+                np.int32) * stride  # (nb, [h_rect, w_rect])
 
         # Cache images into memory for faster training (WARNING: large datasets may exceed system RAM)
         self.imgs, self.img_npy = [None] * n, [None] * n
@@ -508,7 +511,8 @@ class LoadImagesAndLabels(Dataset):
                         np.save(self.img_npy[i].as_posix(), x[0])
                     gb += self.img_npy[i].stat().st_size
                 else:
-                    self.imgs[i], self.img_hw0[i], self.img_hw[i], self.labels[i] = x  # im, hw_orig, hw_resized, label_resized = load_image_label(self, i)
+                    self.imgs[i], self.img_hw0[i], self.img_hw[i], self.labels[
+                        i] = x  # im, hw_orig, hw_resized, label_resized = load_image_label(self, i)
                     gb += self.imgs[i].nbytes
                 pbar.desc = f'{prefix}Caching images ({gb / 1E9:.1f}GB {cache_images})'
             pbar.close()
@@ -519,7 +523,8 @@ class LoadImagesAndLabels(Dataset):
         nm, nf, ne, nc, msgs = 0, 0, 0, 0, []  # number missing, found, empty, corrupt, messages
         desc = f"{prefix}Scanning '{path.parent / path.stem}' images and labels..."
         with Pool(NUM_THREADS) as pool:
-            pbar = tqdm(pool.imap(verify_image_label, zip(self.img_files, self.label_files, repeat(prefix), repeat(self.cls_names))),
+            pbar = tqdm(pool.imap(verify_image_label,
+                                  zip(self.img_files, self.label_files, repeat(prefix), repeat(self.cls_names))),
                         desc=desc, total=len(self.img_files))
             for im_file, l, shape, segments, nm_f, nf_f, ne_f, nc_f, msg in pbar:
                 nm += nm_f
@@ -527,7 +532,7 @@ class LoadImagesAndLabels(Dataset):
                 ne += ne_f
                 nc += nc_f
                 if im_file:
-                    x[im_file] = [l, shape, segments] 
+                    x[im_file] = [l, shape, segments]
                 if msg:
                     msgs.append(msg)
                 pbar.desc = f"{desc}{nf} found, {nm} missing, {ne} empty, {nc} corrupted"
@@ -582,15 +587,18 @@ class LoadImagesAndLabels(Dataset):
 
         else:
             # Load image and label
-            img, (h0, w0), (h, w), img_label = load_image_label(self, index) 
+            img, (h0, w0), (h, w), img_label = load_image_label(self, index)
 
             # Letterbox
-            shape = self.batch_shapes[self.batch[index]] if self.rect else self.img_size  # final letterboxed shape [h_rect, w_rect]
-            img, ratio, pad = letterbox(img, shape, auto=False, scaleup=self.augment) # ratio[w_ratio, h_ratio], pad[w_padding, h_padding]
-            shapes = (h0, w0), ((h / h0, w / w0), pad)  # for COCO mAP rescaling [(h_raw, w_raw), (hw_ratios, wh_paddings)]
+            shape = self.batch_shapes[
+                self.batch[index]] if self.rect else self.img_size  # final letterboxed shape [h_rect, w_rect]
+            img, ratio, pad = letterbox(img, shape, auto=False,
+                                        scaleup=self.augment)  # ratio[w_ratio, h_ratio], pad[w_padding, h_padding]
+            shapes = (h0, w0), (
+            (h / h0, w / w0), pad)  # for COCO mAP rescaling [(h_raw, w_raw), (hw_ratios, wh_paddings)]
 
-            labels = img_label.copy() # labels (array): (num_gt_perimg, [cls_id, poly])
-            if labels.size:  
+            labels = img_label.copy()  # labels (array): (num_gt_perimg, [cls_id, poly])
+            if labels.size:
                 # labels[:, 1:] = xywhn2xyxy(labels[:, 1:], ratio[0] * w, ratio[1] * h, padw=pad[0], padh=pad[1])
                 labels[:, [1, 3, 5, 7]] = img_label[:, [1, 3, 5, 7]] * ratio[0] + pad[0]
                 labels[:, [2, 4, 6, 8]] = img_label[:, [2, 4, 6, 8]] * ratio[1] + pad[1]
@@ -606,7 +614,6 @@ class LoadImagesAndLabels(Dataset):
         nl = len(labels)  # number of labels
         # if nl:
         #     labels[:, 1:5] = xyxy2xywhn(labels[:, 1:5], w=img.shape[1], h=img.shape[0], clip=True, eps=1E-3)
-
 
         if self.augment:
             # Albumentations
@@ -635,20 +642,20 @@ class LoadImagesAndLabels(Dataset):
             # labels = cutout(img, labels, p=0.5)
             # nl = len(labels)  # update after cutout
         if nl:
-        # *[clsid poly] to *[clsid cx cy l s theta gaussian_θ_labels] θ∈[-pi/2, pi/2) non-normalized
-            rboxes, csl_labels  = poly2rbox(polys=labels[:, 1:], 
-                                            num_cls_thata=hyp['cls_theta'] if hyp else 180, 
-                                            radius=hyp['csl_radius'] if hyp else 6.0, 
-                                            use_pi=True, use_gaussian=True)
+            # *[clsid poly] to *[clsid cx cy l s theta gaussian_θ_labels] θ∈[-pi/2, pi/2) non-normalized
+            rboxes, csl_labels = poly2rbox(polys=labels[:, 1:],
+                                           num_cls_thata=hyp['cls_theta'] if hyp else 180,
+                                           radius=hyp['csl_radius'] if hyp else 6.0,
+                                           use_pi=True, use_gaussian=True)
             labels_obb = np.concatenate((labels[:, :1], rboxes, csl_labels), axis=1)
             labels_mask = (rboxes[:, 0] >= 0) & (rboxes[:, 0] < img.shape[1]) \
-                        & (rboxes[:, 1] >= 0) & (rboxes[:, 0] < img.shape[0]) \
-                        & (rboxes[:, 2] > 5) | (rboxes[:, 3] > 5)
+                          & (rboxes[:, 1] >= 0) & (rboxes[:, 0] < img.shape[0]) \
+                          & (rboxes[:, 2] > 5) | (rboxes[:, 3] > 5)
             labels_obb = labels_obb[labels_mask]
             nl = len(labels_obb)  # update after filter
-        
+
         if hyp:
-            c_num = 7 + hyp['cls_theta'] # [index_of_batch clsid cx cy l s theta gaussian_θ_labels]
+            c_num = 7 + hyp['cls_theta']  # [index_of_batch clsid cx cy l s theta gaussian_θ_labels]
         else:
             c_num = 187
 
@@ -702,7 +709,7 @@ class LoadImagesAndLabels(Dataset):
 def load_image_label(self, i):
     # loads 1 image from dataset index 'i', returns im, original hw, resized hw
     im = self.imgs[i]
-    label = self.labels[i].copy() # labels (array): (num_gt_perimg, [cls_id, poly])
+    label = self.labels[i].copy()  # labels (array): (num_gt_perimg, [cls_id, poly])
     if im is None:  # not cached in ram
         npy = self.img_npy[i]
         if npy and npy.exists():  # load npy
@@ -719,7 +726,8 @@ def load_image_label(self, i):
             label[:, 1:] *= r
         return im, (h0, w0), im.shape[:2], label  # im, hw_original, hw_resized, resized_label
     else:
-        return self.imgs[i], self.img_hw0[i], self.img_hw[i], self.labels[i]  # im, hw_original, hw_resized, resized_label
+        return self.imgs[i], self.img_hw0[i], self.img_hw[i], self.labels[
+            i]  # im, hw_original, hw_resized, resized_label
 
 
 def load_mosaic(self, index):
@@ -753,7 +761,8 @@ def load_mosaic(self, index):
         padh = y1a - y1b
 
         # Labels
-        labels, segments = img_label.copy(), self.segments[index].copy() # labels (array): (num_gt_perimg, [cls_id, poly])
+        labels, segments = img_label.copy(), self.segments[
+            index].copy()  # labels (array): (num_gt_perimg, [cls_id, poly])
         if labels.size:
             # labels[:, 1:] = xywhn2xyxy(labels[:, 1:], w, h, padw, padh)  # normalized xywh to pixel xyxy format
             labels[:, [1, 3, 5, 7]] = img_label[:, [1, 3, 5, 7]] + padw
@@ -822,7 +831,8 @@ def load_mosaic9(self, index):
         x1, y1, x2, y2 = (max(x, 0) for x in c)  # allocate coords
 
         # Labels
-        labels, segments = img_label.copy(), self.segments[index].copy() # labels (array): (num_gt_perimg, [cls_id, poly])
+        labels, segments = img_label.copy(), self.segments[
+            index].copy()  # labels (array): (num_gt_perimg, [cls_id, poly])
         if labels.size:
             # labels[:, 1:] = xywhn2xyxy(labels[:, 1:], w, h, padx, pady)  # normalized xywh to pixel xyxy format
             segments = [xyn2xy(x, w, h, padx, pady) for x in segments]
@@ -977,16 +987,17 @@ def verify_image_label(args):
                 #     l = np.concatenate((classes.reshape(-1, 1), segments2boxes(segments)), 1)  # (cls, xywh)
                 l_ = []
                 for label in labels:
-                    if label[-1] == "2": # diffcult
+                    if label[-1] == "2":  # difficult
                         continue
                     cls_id = cls_name_list.index(label[8])
                     l_.append(np.concatenate((cls_id, label[:8]), axis=None))
                 l = np.array(l_, dtype=np.float64)
             nl = len(l)
             if nl:
-                assert len(label) == 10, f'Yolov5-OBB labels require 10 columns, which same as DOTA Dataset, {len(label)} columns detected'
+                assert len(
+                    label) == 10, f'Yolov5-OBB labels require 10 columns, which same as DOTA Dataset, {len(label)} columns detected'
                 assert (l >= 0).all(), f'negative label values {l[l < 0]}, please check your dota format labels'
-                #assert (l[:, 1:] <= 1).all(), f'non-normalized or out of bounds coordinates {l[:, 1:][l[:, 1:] > 1]}'
+                # assert (l[:, 1:] <= 1).all(), f'non-normalized or out of bounds coordinates {l[:, 1:][l[:, 1:] > 1]}'
                 _, i = np.unique(l, axis=0, return_index=True)
                 if len(i) < nl:  # duplicate row check
                     l = l[i]  # remove duplicates
