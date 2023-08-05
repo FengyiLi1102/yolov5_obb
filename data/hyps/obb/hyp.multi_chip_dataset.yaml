@@ -3,18 +3,18 @@
 lr0: 0.00005  # Learning rate should be small for finetune.
 lrf: 0.2
 momentum: 0.937
-weight_decay: 0.001  # 0.0005 # regularisation for overfitting or underfitting -> larger -> reduce the weights -> less over
+weight_decay: 0.0007  # 0.0005 # regularisation for overfitting or underfitting -> larger -> reduce the weights -> less over
 
 warmup_epochs: 250
 warmup_momentum: 0.8
 warmup_bias_lr: 0.1
 
 # box weight for localising the box position
-box: 0.006 # 0.003
+box: 0.003 # 0.003
 
 # class weights:
-cls: 0.4  # 0.5 # how much emphasis the model places on correctly classifying objects versus locating the objects
-cls_pw: 0.8  # 1.0 # class positive weights: how much emphasis the model places on correctly identifying the positive class
+cls: 0.45  # 0.5 # how much emphasis the model places on correctly classifying objects versus locating the objects
+cls_pw: 0.9  # 1.0 # class positive weights: how much emphasis the model places on correctly identifying the positive class
 
 # rotation angle weights
 theta: 0.5
