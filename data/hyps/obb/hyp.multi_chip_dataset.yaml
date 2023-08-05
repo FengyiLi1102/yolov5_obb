@@ -1,0 +1,47 @@
+# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+
+lr0: 0.00005  # Learning rate should be small for finetune.
+lrf: 0.2
+momentum: 0.937
+weight_decay: 0.001  # 0.0005 # regularisation for overfitting or underfitting -> larger -> reduce the weights -> less over
+
+warmup_epochs: 250
+warmup_momentum: 0.8
+warmup_bias_lr: 0.1
+
+# box weight for localising the box position
+box: 0.006 # 0.003
+
+# class weights:
+cls: 0.4  # 0.5 # how much emphasis the model places on correctly classifying objects versus locating the objects
+cls_pw: 0.8  # 1.0 # class positive weights: how much emphasis the model places on correctly identifying the positive class
+
+# rotation angle weights
+theta: 0.5
+theta_pw: 1.0
+
+# objectness weights
+obj: 1.0  # objectness: correctly identifying whether each cell in the grid contains an object or not
+obj_pw: 1.0  # weight for the positive objectness in the objectness loss, how much emphasis the model places on correctly identifying the positive objectness
+
+iou_t: 0.2
+anchor_t: 4.0
+fl_gamma: 2
+hsv_h: 0.015
+hsv_s: 0.7
+hsv_v: 0.4
+
+# augmentation
+degrees: 180.0
+translate: 0.1
+scale: 0.25
+shear: 0.0
+perspective: 0.0
+flipud: 0.5
+fliplr: 0.5
+mosaic: 0  # Not suitable for sparse or large objects and dataset with large imbalance of class
+mixup: 0.1
+copy_paste: 0.0
+cls_theta: 180
+csl_radius: 2.0
+
