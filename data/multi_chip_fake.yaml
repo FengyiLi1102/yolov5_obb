@@ -1,4 +1,4 @@
-path: ../Dataset_augmentation/dataset/multi_chip_dataset/  # dataset root dir
+path: ../Dataset_augmentation/dataset/full_label_dataset/  # dataset root dir
 train: train/images    # train images (relative to 'path')
 val: val/images   # val images (relative to 'path')
 test: test/images  # test images (optional)
