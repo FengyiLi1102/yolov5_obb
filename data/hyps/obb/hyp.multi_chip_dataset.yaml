@@ -13,8 +13,8 @@ warmup_bias_lr: 0.1
 box: 0.005 # 0.003
 
 # class weights:
-cls: 0.45  # 0.5 # how much emphasis the model places on correctly classifying objects versus locating the objects
-cls_pw: 0.9  # 1.0 # class positive weights: how much emphasis the model places on correctly identifying the positive class
+cls: 0.5  # 0.5 # how much emphasis the model places on correctly classifying objects versus locating the objects
+cls_pw: 1.0  # 1.0 # class positive weights: how much emphasis the model places on correctly identifying the positive class
 
 # rotation angle weights
 theta: 0.5
